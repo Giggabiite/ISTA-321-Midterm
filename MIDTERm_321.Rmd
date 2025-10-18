@@ -1,6 +1,6 @@
 ---
 title: "Midterm_321"
-author: "Richard Coyle"
+author: "James Coyle"
 date: "2025-10-17"
 output: pdf_document
 ---
