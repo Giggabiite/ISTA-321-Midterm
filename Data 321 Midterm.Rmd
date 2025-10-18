@@ -1,0 +1,193 @@
+---
+title: "ISTA 321 Midterm Project"
+author: "Graham I. Gordon"
+date: "2025-10-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r init}
+library(dplyr)
+library(ggplot2)
+library(purrr)
+```
+
+```{r wine}
+redWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-red.csv',sep=';'))
+
+colnames(redWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alchohol','quality')
+
+
+whiteWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-white.csv',sep=';'))
+
+colnames(whiteWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alchohol','quality')
+```
+
+```{r, covMaps}
+covMap <- function(data){
+  covData <- select(data, where(is.numeric)) %>% cor() %>% 
+    as_tibble(rownames = 'X') %>% 
+    pivot_longer( -X,names_to='Y', values_to='correlation')
+  
+  varNames <- colnames(data)
+  covData <- mutate(covData,
+                   X = factor(X, levels = varNames),
+                   Y = factor(Y, levels = rev(varNames)))
+  
+  
+  ggplot(covData, aes(X,Y)) + 
+    geom_tile(aes(fill=correlation), color = 'black') +
+    geom_text(aes(label = round(correlation, 2)), size = 2.5, 
+              fontface = 'bold'
+              ) +
+    theme_minimal(
+      base_size = 12, 
+    ) + 
+    labs(
+      x = element_blank(),
+      y = element_blank(),
+      fill = 'Correlation',
+      base_family = 'Times New Roman',
+      title = paste0(deparse(substitute(data)), ' Correlation')
+    ) + 
+    scale_fill_gradient2(
+      high = 'green4',
+      mid = 'white',
+      low = 'dodgerblue4',
+      limits = c(-1,1),
+      midpoint = 0
+    ) + 
+    coord_cartesian( expand = FALSE ) + 
+    theme( axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+covMap(redWine)
+covMap(whiteWine)
+  
+
+
+```
+
+```{r varMap,echo=FALSE,results='hide',fig.keep='all'}
+
+varMap <- function( data, n = '', dataName = '' ){
+
+  covData <- select(data, where(is.numeric)) %>% cor() %>% 
+    as_tibble(rownames = 'X') %>% 
+    pivot_longer( -X,names_to='Y', values_to='correlation')
+  
+  varNames <- colnames(data)
+  covData <- mutate(covData,
+                   X = factor(X, levels = varNames),
+                   Y = factor(Y, levels = rev(varNames)))
+  
+  n <- ifelse( n != '', paste0( ' ', n ), ''  )
+  if (dataName == '') { dataName = deparse(substitute(data)) }
+  print(dataName)
+  
+  ggplot(covData, aes(X,Y)) + 
+    geom_tile(aes(fill=correlation), color = 'black') +
+    geom_text(aes(label = round(correlation, 2)), size = 2.5, 
+              fontface = 'bold'
+              ) +
+    theme_minimal(
+      base_size = 12, 
+    ) + 
+    labs(
+      x = element_blank(),
+      y = element_blank(),
+      fill = 'Correlation',
+      base_family = 'Times New Roman',
+      title = paste0(dataName, n,' Correlation')
+    ) + 
+    scale_fill_gradient2(
+      high = 'green4',
+      mid = 'white',
+      low = 'dodgerblue4',
+      limits = c(-1,1),
+      midpoint = 0
+    ) + 
+    coord_cartesian( expand = FALSE ) + 
+    theme( axis.text.x = element_text(angle = 45, hjust = 1))
+  
+}
+
+byGroup_varMap <- function( data, group ){
+  facets <- list()
+  dataName = deparse(substitute(data))
+  for ( i in unique(sort(as.ordered(group))) ){
+    silt <- filter(data, group == i )
+    facets[[i]] <- varMap( silt, n = i , dataName = dataName )
+  }
+  return(facets)
+}
+
+byGroup_varMap(redWine, redWine$quality)
+byGroup_varMap(whiteWine, whiteWine$quality)
+
+```
+
+```{r}
+red_factor <- redWine
+red_factor$quality <- factor(red_poisData$quality, 
+                               levels = 1:10,
+                               ordered = TRUE)
+red_factor <- red_factor %>% group_by(quality)
+
+red_count <- red_factor %>% count(quality, sort = TRUE)
+
+
+bartlett.test(alchohol ~ quality, data = red_factor)
+
+
+#summary(red_factor)
+#ggplot(red_factor, aes(x=alchohol, y = pH, group = quality, color = quality)) + geom_line()
+
+```
+
+
+
+
+```{r histograms}
+
+ggplot(redWine, aes(x=quality)) + 
+  geom_histogram(binwidth=1) + 
+  geom_vline(aes(xintercept=mean(quality)), color = 'red') + 
+  geom_vline(aes(xintercept=mean(3:8)), color = 'blue') + 
+  labs(
+    title = 'Red Wine'
+    )
+ggplot(whiteWine, aes(x=quality)) + 
+  geom_histogram(binwidth=1) + 
+  geom_vline(aes(xintercept=mean(quality)), color = 'red') + 
+  geom_vline(aes(xintercept=mean(3:8)), color = 'blue') + 
+  labs(
+    title = 'Red Wine'
+    ) 
+  
+```
+
+
+```{r ttest}
+t.test(x=redWine$quality, mu = mean(3:8))
+t.test(x=whiteWine$quality, mu = mean(3:8))
+```
+
+
+
+
+
+
+
+
+
+
