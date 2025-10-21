@@ -104,5 +104,37 @@ red_wine_single_lm %>%
 
 ## Take a sample of the white whine dataset and then make an interaction with red wine
 
+## Check which type of wine has the minimun number of datapoints
+min_red_white <- min(table(red_and_white$type))
+min_red_white
+
+
+## Create a sample of the red_and_white data set to make the red and white equal number
+set.seed(123)
+
+sample <- red_and_white %>%
+  group_by(type) %>%
+  slice_sample(n = min_red_white) %>%
+  ungroup()
+
+## Confirm they are equal
+table(balanced_sample$type)
+
+## Updated Linear model for our sample dataset
+sample_lm <- lm(quality ~ alcohol * type, data = sample)
+summary(sample_lm)
+
+sample %>%
+  ggplot(aes(alcohol, quality, color = type)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = lm, se = FALSE) +
+  theme_bw() +
+  labs(title = "Balanced Comparison: Red vs White Wine Quality by Alcohol",
+       x = "Alcohol Level",
+       y = "Wine Quality")
+
+plot(sample_lm)
+
+
 ```
 
