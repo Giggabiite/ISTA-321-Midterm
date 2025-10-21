@@ -118,7 +118,7 @@ sample <- red_and_white %>%
   ungroup()
 
 ## Confirm they are equal
-table(balanced_sample$type)
+table(sample$type)
 
 ## Updated Linear model for our sample dataset
 sample_lm <- lm(quality ~ alcohol * type, data = sample)
