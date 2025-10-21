@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
+\
 ```{r init}
 library(dplyr)
 library(ggplot2)
@@ -183,18 +183,48 @@ t.test(x=whiteWine$quality, mu = mean(3:8))
 ```
 
 ```{r}
-full_formula <- quality ~ `fixed acidity` + `volatile acidity` + `citric acid` +
-  `residual sugar` + chlorides + `free sulfur dioxide` + `total sulfur dioxide` +
-  density + pH + sulphates + alcohol + type
+full_formula <- quality ~ `voli_acid` + `cit_acid` +
+  `sugar` + pH + sulfates + alchohol
 
-lm_full <- lm(full_formula, data = wine)
+lm_full <- lm(full_formula, data = redWine)
+r_squared <- summary(lm_full)$r.squared
+f2 <- r_squared / (1 - r_squared)
+summary(f2)
 summary(lm_full)
 ```
 
 ```{r}
-feat <- c("alcohol", "volatile acidity", "density", "sulphates", "chlorides", "fixed acidity")
+full_formula <- quality ~ `fix_acid` + `voli_acid` + `cit_acid` +
+  `sugar` + pH + sulfates + alchohol
 
-plot_df <- wine %>%
+lm_full2 <- lm(full_formula, data = whiteWine)
+r_squared <- summary(lm_full)$r.squared
+f2 <- r_squared / (1 - r_squared)
+summary(f2)
+summary(lm_full2)
+```
+
+```{r}
+feat <- c("alchohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+
+plot_df <- redWine %>%
+  select(quality, all_of(feat)) %>%
+  pivot_longer(-quality, names_to = "feature", values_to = "value")
+
+ggplot(plot_df, aes(value, quality)) +
+  geom_point(alpha = 0.15, size = 1) +
+  
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ feature, scales = "free_x", ncol = 3) +
+  labs(title = "How chemistry relates to red wine quality",
+       x = "Feature value", y = "Quality (3–8)") +
+  theme_minimal(base_size = 13) 
+```
+
+```{r}
+feat <- c("alchohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+
+plot_df <- whiteWine %>%
   select(quality, all_of(feat)) %>%
   pivot_longer(-quality, names_to = "feature", values_to = "value")
 
@@ -202,14 +232,10 @@ ggplot(plot_df, aes(value, quality)) +
   geom_point(alpha = 0.15, size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~ feature, scales = "free_x", ncol = 3) +
-  labs(title = "How chemistry relates to wine quality",
+  labs(title = "How chemistry relates to white wine quality",
        x = "Feature value", y = "Quality (0–10)") +
-  theme_minimal(base_size = 13) 
+  theme_minimal(base_size = 13)
 ```
-
-
-
-
 
 
 
