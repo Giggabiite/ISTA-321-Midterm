@@ -1,6 +1,6 @@
 ---
 title: "ISTA 321 Midterm Project"
-author: "Graham I. Gordon"
+author: "Graham I. Gordon, James Coyle, Alyssa Ortega"
 date: "2025-10-10"
 output: html_document
 ---
@@ -9,31 +9,31 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 \
 ```{r init}
 library(dplyr)
 library(ggplot2)
 library(purrr)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::filter)
 ```
 
 ```{r wine}
 redWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-red.csv',sep=';'))
 
-colnames(redWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alchohol','quality')
+colnames(redWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alcohol','quality')
 
 
 whiteWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-white.csv',sep=';'))
 
-colnames(whiteWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alchohol','quality')
+colnames(whiteWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alcohol','quality')
 ```
 
 ```{r, covMaps}
 covMap <- function(data){
+  # Creates correlation matrix of numeric data and organizes it 
+  # for ggplot to use ( X Y Cor ), where X and Y are var names
+  # and cor is the correlation of each variable combination
   covData <- select(data, where(is.numeric)) %>% cor() %>% 
     as_tibble(rownames = 'X') %>% 
     pivot_longer( -X,names_to='Y', values_to='correlation')
@@ -77,125 +77,54 @@ covMap(whiteWine)
 
 ```
 
-```{r varMap,echo=FALSE,results='hide',fig.keep='all'}
+```{r histograms, results='hide'}
+# Define colors for vertical lines
+line.data <- data.frame(xintercept = c(mean(redWine$quality), mean(3:8)), 
+                        Lines = c("Random Mean", "Sample Mean"),
+                        color = c("red", "blue"), stringsAsFactors = FALSE)
 
-varMap <- function( data, n = '', dataName = '' ){
-
-  covData <- select(data, where(is.numeric)) %>% cor() %>% 
-    as_tibble(rownames = 'X') %>% 
-    pivot_longer( -X,names_to='Y', values_to='correlation')
-  
-  varNames <- colnames(data)
-  covData <- mutate(covData,
-                   X = factor(X, levels = varNames),
-                   Y = factor(Y, levels = rev(varNames)))
-  
-  n <- ifelse( n != '', paste0( ' ', n ), ''  )
-  if (dataName == '') { dataName = deparse(substitute(data)) }
-  print(dataName)
-  
-  ggplot(covData, aes(X,Y)) + 
-    geom_tile(aes(fill=correlation), color = 'black') +
-    geom_text(aes(label = round(correlation, 2)), size = 2.5, 
-              fontface = 'bold'
-              ) +
-    theme_minimal(
-      base_size = 12, 
-    ) + 
-    labs(
-      x = element_blank(),
-      y = element_blank(),
-      fill = 'Correlation',
-      base_family = 'Times New Roman',
-      title = paste0(dataName, n,' Correlation')
-    ) + 
-    scale_fill_gradient2(
-      high = 'green4',
-      mid = 'white',
-      low = 'dodgerblue4',
-      limits = c(-1,1),
-      midpoint = 0
-    ) + 
-    coord_cartesian( expand = FALSE ) + 
-    theme( axis.text.x = element_text(angle = 45, hjust = 1))
-  
-}
-
-byGroup_varMap <- function( data, group ){
-  facets <- list()
-  dataName = deparse(substitute(data))
-  for ( i in unique(sort(as.ordered(group))) ){
-    silt <- filter(data, group == i )
-    facets[[i]] <- varMap( silt, n = i , dataName = dataName )
-  }
-  return(facets)
-}
-
-byGroup_varMap(redWine, redWine$quality)
-byGroup_varMap(whiteWine, whiteWine$quality)
-
-```
-
-```{r}
-red_factor <- redWine
-red_factor$quality <- factor(red_poisData$quality, 
-                               levels = 1:10,
-                               ordered = TRUE)
-red_factor <- red_factor %>% group_by(quality)
-
-red_count <- red_factor %>% count(quality, sort = TRUE)
-
-
-bartlett.test(alchohol ~ quality, data = red_factor)
-
-
-#summary(red_factor)
-#ggplot(red_factor, aes(x=alchohol, y = pH, group = quality, color = quality)) + geom_line()
-
-```
-
-
-
-
-```{r histograms}
-
-ggplot(redWine, aes(x=quality)) + 
+ggplot(data=redWine, aes(x=quality)) + 
   geom_histogram(binwidth=1) + 
-  geom_vline(aes(xintercept=mean(quality)), color = 'red') + 
-  geom_vline(aes(xintercept=mean(3:8)), color = 'blue') + 
+  geom_vline(aes(xintercept=xintercept, color = Lines), line.data) + 
+  scale_colour_manual(values = line.data$color) + 
   labs(
     title = 'Red Wine'
     )
+
 ggplot(whiteWine, aes(x=quality)) + 
   geom_histogram(binwidth=1) + 
-  geom_vline(aes(xintercept=mean(quality)), color = 'red') + 
-  geom_vline(aes(xintercept=mean(3:8)), color = 'blue') + 
+  geom_vline(aes(xintercept=xintercept, color = Lines), line.data) + 
+  scale_colour_manual(values = line.data$color) + 
   labs(
-    title = 'Red Wine'
+    title = 'White Wine'
     ) 
   
 ```
 
 
-```{r ttest}
+```{r ttest/anova}
 t.test(x=redWine$quality, mu = mean(3:8))
 t.test(x=whiteWine$quality, mu = mean(3:8))
-```
 
-```{r}
-full_formula <- quality ~ `voli_acid` + `cit_acid` +
-  `sugar` + pH + sulfates + alchohol
+aovmod_red <- aov(alcohol~quality, data = redWine)
+aovmod_white <- aov(alcohol~quality, data = whiteWine)
 
-lm_full <- lm(full_formula, data = redWine)
-r_squared <- summary(lm_full)$r.squared
-f2 <- r_squared / (1 - r_squared)
-summary(f2)
-summary(lm_full)
+plot(aovmod_red)
+plot(aovmod_white)
+
+bartlett.test(alcohol~quality, data = redWine)
+bartlett.test(alcohol~quality, data = whiteWine)
+
+summary(aovmod_red)
+summary(aovmod_white)
+
+oneway.test(alcohol~quality, data = redWine)
+oneway.test(alcohol~quality, data = whiteWine)
 ```
 
 ```{r}
 full_formula <- quality ~ `fix_acid` + `voli_acid` + `cit_acid` +
-  `sugar` + pH + sulfates + alchohol
+  `sugar` + pH + sulfates + alcohol
 
 lm_full2 <- lm(full_formula, data = whiteWine)
 r_squared <- summary(lm_full)$r.squared
@@ -205,7 +134,7 @@ summary(lm_full2)
 ```
 
 ```{r}
-feat <- c("alchohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
 
 plot_df <- redWine %>%
   select(quality, all_of(feat)) %>%
@@ -222,7 +151,7 @@ ggplot(plot_df, aes(value, quality)) +
 ```
 
 ```{r}
-feat <- c("alchohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
 
 plot_df <- whiteWine %>%
   select(quality, all_of(feat)) %>%
