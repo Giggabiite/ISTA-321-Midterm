@@ -182,6 +182,32 @@ t.test(x=redWine$quality, mu = mean(3:8))
 t.test(x=whiteWine$quality, mu = mean(3:8))
 ```
 
+```{r}
+full_formula <- quality ~ `fixed acidity` + `volatile acidity` + `citric acid` +
+  `residual sugar` + chlorides + `free sulfur dioxide` + `total sulfur dioxide` +
+  density + pH + sulphates + alcohol + type
+
+lm_full <- lm(full_formula, data = wine)
+summary(lm_full)
+```
+
+```{r}
+feat <- c("alcohol", "volatile acidity", "density", "sulphates", "chlorides", "fixed acidity")
+
+plot_df <- wine %>%
+  select(quality, all_of(feat)) %>%
+  pivot_longer(-quality, names_to = "feature", values_to = "value")
+
+ggplot(plot_df, aes(value, quality)) +
+  geom_point(alpha = 0.15, size = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ feature, scales = "free_x", ncol = 3) +
+  labs(title = "How chemistry relates to wine quality",
+       x = "Feature value", y = "Quality (0–10)") +
+  theme_minimal(base_size = 13) 
+```
+
+
 
 
 
