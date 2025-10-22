@@ -122,48 +122,74 @@ oneway.test(alcohol~quality, data = redWine)
 oneway.test(alcohol~quality, data = whiteWine)
 ```
 
+
 ```{r}
-full_formula <- quality ~ `fix_acid` + `voli_acid` + `cit_acid` +
-  `sugar` + pH + sulfates + alcohol
+#Creates a model for wine quality based on chemical variables
+full_formula <- quality ~ density + voli_acid +
+  sugar + pH + sulfates + alcohol
+#Apply the model to the white wine data
+lm_full <- lm(full_formula, data = redWine)
+
+#find r squared value
+r_squared <- summary(lm_full)$r.squared
+
+#the below line calculates the strength of the model/effect size
+f2 <- r_squared / (1 - r_squared)
+summary(f2)
+summary(lm_full)
+```
+
+
+```{r}
+#The next seven lines are the same as the above model but applied to the red wine data
+full_formula <- quality ~ density + voli_acid +
+  sugar + pH + sulfates + alcohol
 
 lm_full2 <- lm(full_formula, data = whiteWine)
-r_squared <- summary(lm_full)$r.squared
+r_squared <- summary(lm_full2)$r.squared
 f2 <- r_squared / (1 - r_squared)
 summary(f2)
 summary(lm_full2)
 ```
 
 ```{r}
+#These are the chemical variables we wanted to plot against wine quality
 feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
 
+#This reshapes the data on red wine so it is easier to plot
 plot_df <- redWine %>%
   select(quality, all_of(feat)) %>%
   pivot_longer(-quality, names_to = "feature", values_to = "value")
 
+#The code below creates a scatterplot with a trend line for each chemcial variable
 ggplot(plot_df, aes(value, quality)) +
-  geom_point(alpha = 0.15, size = 1) +
+  geom_point(alpha = 0.15, size = 1) +   #This was necessary for less overlap between the plotted points
   
   geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~ feature, scales = "free_x", ncol = 3) +
-  labs(title = "How chemistry relates to red wine quality",
+  facet_wrap(~ feature, scales = "free_x", ncol = 3) +  #show plots individually based on chemical variable
+  labs(title = "How Chemistry Relates to Red Wine Quality",  #Necessary labels for clear visualization
        x = "Feature value", y = "Quality (3–8)") +
   theme_minimal(base_size = 13) 
 ```
 
 ```{r}
+#The same chemcial variables chosen for the red wine
 feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
 
+#Again pivot longer was used to reshape the data in an attempt to make it easier to plot
 plot_df <- whiteWine %>%
   select(quality, all_of(feat)) %>%
   pivot_longer(-quality, names_to = "feature", values_to = "value")
 
+#Creation of a scatter plot similar to the one seen above, but instead applies to white wine
 ggplot(plot_df, aes(value, quality)) +
   geom_point(alpha = 0.15, size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~ feature, scales = "free_x", ncol = 3) +
-  labs(title = "How chemistry relates to white wine quality",
-       x = "Feature value", y = "Quality (0–10)") +
-  theme_minimal(base_size = 13)
+  labs(title = "How Chemistry Relates to White Wine Quality",
+       x = "Feature value", y = "Quality (3-8)") +
+  theme_minimal(base_size = 13) + 
+  theme(panel.spacing = unit(1.5, "lines"))   #For some reason there was an overlap of axis labels between plots so the panel spacing was used to combat that 
 ```
 
 
