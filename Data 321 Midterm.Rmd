@@ -11,9 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 \
 ```{r init}
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
-library(purrr)
+library(conflicted)
 conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::filter)
 ```
