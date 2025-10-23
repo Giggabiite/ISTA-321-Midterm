@@ -17,7 +17,6 @@ library(tidyverse)
 library(dplyr)
 library(cowplot)
 
-
 ## Data Exploration for Red Wine Dataset
 head(winequality.red)
 glimpse(winequality.red)
@@ -43,22 +42,16 @@ red_and_white$type <- as.factor(red_and_white$type)
 ## Exploring the Data
 p1 <- ggplot(winequality.red, aes(x = alcohol)) + geom_histogram() + labs(title = "Red Wine Alcohol")
 p2 <- ggplot(winequality.white, aes(x = alcohol)) + geom_histogram() + labs(title = "White Wine Alcohol")
-p3 <- ggplot(winequality.red, aes(x = residual.sugar)) + geom_histogram() + labs(title = "Red Wine Residual Sugar")
-p4 <- ggplot(winequality.white, aes(x = residual.sugar)) + geom_histogram() + labs(title = "White Wine Residual Sugar")
 
-plot_grid(p1, p2, p3, p4)
+## Alcohol Content in Red and White Wines
+plot_grid(p1, p2)
 
 ## Research question: Does alcohol content relate to wine quality, and does that relationship differ between red and white wines?
 
-## Single predictor linear regression model
-single_predictor_lm <- lm(quality ~ alcohol * type, data = red_and_white)
+## Single predictor linear regression model by alcohol
+single_predictor_lm <- lm(quality ~ alcohol, data = red_and_white)
 single_predictor_lm
 summary(single_predictor_lm)
-
-single_predictor_lm_2 <- lm(quality ~ residual.sugar, data = red_and_white)
-single_predictor_lm_2
-summary(single_predictor_lm_2)
-
 
 
 ## View the attributes of single_predictor_lm
@@ -80,29 +73,6 @@ red_and_white %>%
        color = "Wine Type")
 
 
-## Multi Linear Regression
-multi_predictor_lm <- lm(quality ~ alcohol + residual.sugar * type, data = red_and_white)
-multi_predictor_lm
-summary(multi_predictor_lm)
-
-multi_predictor_lm_2 <- lm(quality ~ residual.sugar * type, data = red_and_white)
-multi_predictor_lm_2
-summary(multi_predictor_lm_2)
-
-red_wine_single_lm <- lm(quality ~ alcohol, data = winequality.red)
-summary(red_wine_single_lm)
-
-red_wine_single_lm %>% 
-  ggplot(aes(alcohol, quality)) +
-  geom_point() +
-  geom_smooth(method = lm, se = F) +
-  theme_bw() +
-  labs(title = "Red Wine Quality Based on Alcohol Content",
-       x = "Alcohol Level",
-       y = "Wine Quality",
-       color = "Wine Type")
-
-## Take a sample of the white whine dataset and then make an interaction with red wine
 
 ## Check which type of wine has the minimun number of datapoints
 min_red_white <- min(table(red_and_white$type))
@@ -133,7 +103,9 @@ sample %>%
        x = "Alcohol Level",
        y = "Wine Quality")
 
+## Diagnostic Check
 plot(sample_lm)
+
 
 
 ```
