@@ -141,7 +141,7 @@ r_squared <- summary(lm_full)$r.squared
 
 #the below line calculates the strength of the model/effect size
 f2 <- r_squared / (1 - r_squared)
-summary(f2)
+print(paste0("Cohen's f is: ", round(f2,4)))
 summary(lm_full)
 ```
 
@@ -153,7 +153,7 @@ full_formula <- quality ~ voli_acid + sugar + pH + sulfates + alcohol
 lm_full2 <- lm(full_formula, data = whiteWine)
 r_squared <- summary(lm_full2)$r.squared
 f2 <- r_squared / (1 - r_squared)
-summary(f2)
+print(paste0("Cohen's f is: ", round(f2,4)))
 summary(lm_full2)
 ```
 
