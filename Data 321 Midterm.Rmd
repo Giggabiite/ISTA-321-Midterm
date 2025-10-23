@@ -19,12 +19,12 @@ conflicts_prefer(dplyr::filter)
 ```
 
 ```{r wine}
-redWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-red.csv',sep=';'))
+redWine <- tibble(read.csv('winequality-red.csv',sep=';'))
 
 colnames(redWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alcohol','quality')
 
 
-whiteWine <- tibble(read.csv('/Users/giggabite/Library/Mobile Documents/com~apple~CloudDocs/MyCode/Data Science/Data 321/wine+quality/winequality-white.csv',sep=';'))
+whiteWine <- tibble(read.csv('winequality-white.csv',sep=';'))
 
 colnames(whiteWine) <- c('fix_acid','voli_acid','cit_acid','sugar','Cl','free_SO2','total_SO2','density','pH','sulfates','alcohol','quality')
 ```
