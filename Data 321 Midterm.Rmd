@@ -77,10 +77,11 @@ covMap(whiteWine)
 
 ```
 
-```{r histograms, results='hide'}
+```{r histograms}
 # Define colors for vertical lines
 line.data <- data.frame(xintercept = c(mean(redWine$quality), mean(3:8)), 
-                        Lines = c("Random Mean", "Sample Mean"),
+                        Lines = c(paste0("Random \nMean\n",mean(3:8),'\n'),
+                                  paste0("Sample \nMean\n",round(mean(redWine$quality),1),'\n')),
                         color = c("red", "blue"), stringsAsFactors = FALSE)
 
 ggplot(data=redWine, aes(x=quality)) + 
@@ -91,9 +92,14 @@ ggplot(data=redWine, aes(x=quality)) +
     title = 'Red Wine'
     )
 
+line.data2 <- data.frame(xintercept = c(mean(whiteWine$quality), mean(3:8)), 
+                        Lines = c(paste0("Random \nMean\n",mean(3:8),'\n'),
+                                  paste0("Sample \nMean\n",round(mean(whiteWine$quality),1),'\n')),
+                        color = c("red", "blue"), stringsAsFactors = FALSE)
+
 ggplot(whiteWine, aes(x=quality)) + 
   geom_histogram(binwidth=1) + 
-  geom_vline(aes(xintercept=xintercept, color = Lines), line.data) + 
+  geom_vline(aes(xintercept=xintercept, color = Lines), line.data2) + 
   scale_colour_manual(values = line.data$color) + 
   labs(
     title = 'White Wine'
@@ -103,6 +109,7 @@ ggplot(whiteWine, aes(x=quality)) +
 
 
 ```{r ttest/anova}
+# Tests to quanitify similarity btw sample means and random means
 t.test(x=redWine$quality, mu = mean(3:8))
 t.test(x=whiteWine$quality, mu = mean(3:8))
 
