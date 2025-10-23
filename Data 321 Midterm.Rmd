@@ -109,7 +109,7 @@ ggplot(whiteWine, aes(x=quality)) +
 
 
 ```{r ttest/anova}
-# Tests to quanitify similarity btw sample means and random means
+# Tests to quantify similarity btw sample means and random means
 t.test(x=redWine$quality, mu = mean(3:8))
 t.test(x=whiteWine$quality, mu = mean(3:8))
 
