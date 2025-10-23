@@ -132,8 +132,7 @@ oneway.test(alcohol~quality, data = whiteWine)
 
 ```{r}
 #Creates a model for wine quality based on chemical variables
-full_formula <- quality ~ density + voli_acid +
-  sugar + pH + sulfates + alcohol
+full_formula <- quality ~ voli_acid + sugar + pH + sulfates + alcohol
 #Apply the model to the white wine data
 lm_full <- lm(full_formula, data = redWine)
 
@@ -149,8 +148,7 @@ summary(lm_full)
 
 ```{r}
 #The next seven lines are the same as the above model but applied to the red wine data
-full_formula <- quality ~ density + voli_acid +
-  sugar + pH + sulfates + alcohol
+full_formula <- quality ~ voli_acid + sugar + pH + sulfates + alcohol
 
 lm_full2 <- lm(full_formula, data = whiteWine)
 r_squared <- summary(lm_full2)$r.squared
@@ -161,7 +159,7 @@ summary(lm_full2)
 
 ```{r}
 #These are the chemical variables we wanted to plot against wine quality
-feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+feat <- c("alcohol", "voli_acid", "sulfates", "sugar", "pH")
 
 #This reshapes the data on red wine so it is easier to plot
 plot_df <- redWine %>%
@@ -181,7 +179,7 @@ ggplot(plot_df, aes(value, quality)) +
 
 ```{r}
 #The same chemcial variables chosen for the red wine
-feat <- c("alcohol", "voli_acid", "density", "sulfates", "sugar", "pH")
+feat <- c("alcohol", "voli_acid", "sulfates", "sugar", "pH")
 
 #Again pivot longer was used to reshape the data in an attempt to make it easier to plot
 plot_df <- whiteWine %>%
